@@ -2,6 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient()
 const express = require('express')
 const cors = require('cors')
+const jwt = require('jsonwebtoken')
 const app = express()
 
 const maria = require('./database/connect/maria')
@@ -18,8 +19,40 @@ app.listen(8080, () => {
     console.log('http://localhost:8080 에서 서버 실행 중')
 })
 
-app.get('/login', (_, res) => {
-    console.log('login 요청 왔음')
+app.post('/login', async (req, res) => {
+    const {name ,password} = req.body
+    const key = process.env.JWT_SECRET;
+
+    const user = await prisma.user.findUnique({
+        where: {
+            name
+        }
+    })
+    
+    const token = jwt.sign(
+        {
+            type: "JWT",
+            name: name,
+        },
+        key,
+        {
+          expiresIn: "1d",
+        }
+    )
+
+    if(user && user.password === password){
+        console.log('200보냄')
+        res.send({
+            status:200,
+            token: token
+        })
+    }else{
+        console.log('401보냄')
+        res.send({
+            status:401
+        })
+    }
+    return
 })
 
 app.post('/signup', async (req, res) => {
