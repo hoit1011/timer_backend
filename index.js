@@ -84,3 +84,24 @@ app.post('/signup', async (req, res) => {
         status: 200
     })
 })
+
+app.get('/chart', async (req, res) => {
+    const key = process.env.JWT_SECRET
+    const token = req.headers.authorization
+
+    try {
+        jwt.verify(token, key)
+        console.log('토큰이 유효합니다.')
+        res.send({
+            success:true,
+            status:200  
+        })
+    } catch (error) {
+        console.error('토큰 검증 오류:', error)
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({ error: '토큰이 만료되었습니다.' })
+        } else {
+            return res.status(401).json({ error: '토큰 검증 오류' })
+        }
+    }
+});
