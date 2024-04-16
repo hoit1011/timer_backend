@@ -132,3 +132,33 @@ app.post('/study', async (req,res) => {
         })
     }
 })
+
+app.get('/getchart', async(req,res) => {
+    const key = process.env.JWT_SECRET
+    const token = req.headers.authorization
+    try{
+        const decodejwt = jwt.verify(token, key)
+        const userid = decodejwt.name
+        const Studydata = await prisma.study.groupBy({
+            by: ['subject'],
+            _sum: {
+                study_time: true
+            },
+            where: {
+                user_id: userid
+            }
+        })
+        console.log(Studydata)
+        res.send({
+            success:true,
+            status:200,
+            data:Studydata
+        })
+    }catch(e){
+        console.log(e)
+        res.send({
+            success:false,
+            status:400
+        })
+    }
+})
