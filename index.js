@@ -98,10 +98,37 @@ app.get('/chart', async (req, res) => {
         })
     } catch (error) {
         console.error('토큰 검증 오류:', error)
-        if (error.name === 'TokenExpiredError') {
-            return res.status(401).json({ error: '토큰이 만료되었습니다.' })
-        } else {
-            return res.status(401).json({ error: '토큰 검증 오류' })
-        }
+        res.send({
+            success:false,
+            status:401
+        })
     }
 });
+
+app.post('/study', async (req,res) => {
+    const {what , result} = req.body
+    const key = process.env.JWT_SECRET
+    const token = req.headers.authorization
+    try{
+        const decodejwt = jwt.verify(token, key)
+        const userid = decodejwt.name
+        const Studydata = await prisma.study.create({
+            data: {
+                subject : what,
+                study_time : result,
+                user_id : userid
+            }
+        })
+        console.log(Studydata)
+        res.send({
+            success:true,
+            status:200
+        })
+    }catch(e){
+        console.log(e)
+        res.send({
+            success:false,
+            status:400
+        })
+    }
+})

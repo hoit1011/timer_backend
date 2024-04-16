@@ -4,6 +4,8 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+//npx prisma migrate dev <- db 덮어씌우기
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,7 +16,14 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
+  id       Int      @id @default(autoincrement())
   name     String @unique
   password String
+} 
+
+model Study {
+  id         Int     @id @default(autoincrement())
+  subject    String
+  study_time Int
+  user_id    String
 }
